@@ -18,15 +18,20 @@ class_mapping = {
 @st.cache_resource
 def load_model():
     try:
-        model_url = "https://raw.githubusercontent.com/AlpharafGitHub/PCBDetection/main/PCB_Multi_Label_Classifier.h5"
+        # Use the direct raw link to download the model
+        model_url = "https://raw.githubusercontent.com/AlpharafGitHub/PCBDetection/e2c4f5b946b0228eb648825ddbd874b4885eaa16/PCB_Multi_Label_Classifier.h5"
         model_path = "PCB_Multi_Label_Classifier.h5"
         
-        if not os.path.exists(model_path):
+        # Download the model if it doesn't already exist or if it's corrupted
+        if not os.path.exists(model_path) or os.path.getsize(model_path) < 1000:
             response = requests.get(model_url)
-            response.raise_for_status()
+            response.raise_for_status()  # Ensure the download was successful
+            
+            # Save the model file locally
             with open(model_path, "wb") as f:
                 f.write(response.content)
 
+        # Load the model
         model = tf.keras.models.load_model(model_path)
         st.success("Model loaded successfully!")
         return model
@@ -38,7 +43,7 @@ def load_model():
 # Initialize the model
 model = load_model()
 if model is None:
-    st.stop()
+    st.stop()  # Stop execution if the model fails to load
 
 # Function to preprocess and make predictions
 def predict(image, model):
