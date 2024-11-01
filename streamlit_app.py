@@ -30,16 +30,18 @@ def predict(image):
 def calculate_classes(predictions, threshold=0.5):
     classes = ['Capacitor_SMD', 'Diode_SMD', 'IC_Chip', 'Inductor_SMD', 'Resistor_SMD']
     detected_classes = []
+
+    # Threshold the predictions to detect classes
     for i, cls in enumerate(classes):
         if predictions[0][i] >= threshold:
             detected_classes.append(cls)
-    
+
     # Count occurrences of each class
     class_counts = {cls: 0 for cls in classes}
     for cls in detected_classes:
         class_counts[cls] += 1
 
-    # Calculate total detected and percentage
+    # Calculate total detections and percentage
     total_detected = len(detected_classes)
     class_percentages = {}
     if total_detected > 0:
@@ -66,8 +68,7 @@ if uploaded_file is not None:
     # Calculate detected classes and their percentages
     class_counts, class_percentages = calculate_classes(predictions)
 
-    # Display detected classes and percentages
-    st.write("Detected Classes and Percentages:")
-    for cls, count in class_counts.items():
-        if count > 0:
-            st.write(f"{cls}: {class_percentages[cls]:.2f}%")
+    # Display annotations with detected classes, counts, and percentages
+    st.write("### Detected Classes with Counts and Percentages:")
+    for cls in class_counts:
+        st.write(f"**{cls}**: Count = {class_counts[cls]}, Percentage = {class_percentages.get(cls, 0.0):.2f}%")
