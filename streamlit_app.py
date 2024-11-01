@@ -51,7 +51,7 @@ def calculate_classes(predictions, threshold=0.5):
     return class_counts, class_percentages
 
 # Streamlit UI
-st.title("PCB Multi-Class Detection")
+st.title("PCB Multi-Class Semiconductor Classifier for SMD")
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
