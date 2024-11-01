@@ -8,17 +8,17 @@ import os
 
 # Class mapping (update this with your actual PCB classes)
 class_mapping = {
-    0: 'Class 1',
-    1: 'Class 2',
-    2: 'Class 3',
-    3: 'Class 4',
-    # Add additional classes as needed
-}
+    0: 'Capacitor_SMD',
+    1: 'Diode_SMD',
+    2: 'IC_Chip',
+    3: 'Inductor_SMD',
+    4: 'Resistor_SMD',
+    }
 
 # Load the pre-trained model
 @st.cache(allow_output_mutation=True)
 def load_model():
-    model_url = "https://github.com/YourGitHubUsername/YourRepoName/raw/main/PCB_Multi_Label_Classifier.h5"
+    model_url = "https://github.com/AlpharafGitHub/PCBDetection/edit/main/PCB_Multi_Label_Classifier.h5"
     model_path = tf.keras.utils.get_file("pcb_model.h5", origin=model_url, cache_subdir=os.path.abspath("."))
     model = tf.keras.models.load_model(model_path)
     return model
