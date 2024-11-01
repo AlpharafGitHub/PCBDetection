@@ -1,52 +1,47 @@
 import streamlit as st
-import numpy as np
 import tensorflow as tf
+import numpy as np
+from io import BytesIO
 from PIL import Image
 import requests
-from io import BytesIO
 import os
 
-@st.cache_resource  # Updated decorator for caching resources like models
+# Class mapping (update this with your actual PCB classes)
+class_mapping = {
+    0: 'Capacitor_SMD',
+    1: 'Diode_SMD',
+    2: 'IC_Chip',
+    3: 'Inductor_SMD',
+    4: 'Resistor_SMD',
+    }
+
+# Load the pre-trained model
+@st.cache(allow_output_mutation=True)
 def load_model():
-    try:
-        model_url = "https://raw.githubusercontent.com/AlpharafGitHub/PCBDetection/main/PCB_Multi_Label_Classifier.h5"
-        response = requests.get(model_url)
-        response.raise_for_status()  # Checks for request errors
-        model_path = "PCB_Multi_Label_Classifier.h5"
-        
-        # Save model file locally
-        with open(model_path, "wb") as file:
-            file.write(response.content)
-        
-        # Load the model
-        model = tf.keras.models.load_model(model_path)
-        st.success("Model loaded successfully!")
-        return model
+    model_url = "https://github.com/AlpharafGitHub/PCBDetection/edit/main/PCB_Multi_Label_Classifier.h5"
+    model_path = tf.keras.utils.get_file("pcb_model.h5", origin=model_url, cache_subdir=os.path.abspath("."))
+    model_path = tf.keras.utils.get_file("PCB_Multi_Label_Classifier.h5", origin=model_url, cache_subdir=os.path.abspath("."))
+    model = tf.keras.models.load_model(model_path)
+    return model
 
-    except Exception as e:
-        st.error(f"Error loading model: {e}")
-        return None
+# Function to preprocess and make predictions
+def predict(image, model):
+    # Preprocess the image
+    image = image.resize((224, 224))  # Adjust this size if your model requires a different input size
+    img_array = tf.keras.preprocessing.image.img_to_array(image)
+    img_array = tf.expand_dims(img_array, 0)  # Add batch dimension
 
-# Load the model and check if it was successful
-model = load_model()
-if model is None:
-    st.stop()  # Stops the app if the model failed to load
+    # Make prediction
+    predictions = model.predict(img_array)
 
-st.title("PCB Defect Detection")
+    # Get the predicted class with the highest probability
+    predicted_class = class_mapping[np.argmax(predictions[0])]
+    return predicted_class
 
-uploaded_file = st.file_uploader("Choose an image...", type="jpg")
+# Streamlit app
+st.title("PCB Image Classifier")
+uploaded_file = st.file_uploader("Upload an image of a PCB for classification.", type=["jpg", "jpeg", "png"])
+
 if uploaded_file is not None:
+    # Display the uploaded image
     image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Image.", use_column_width=True)
-    st.write("")
-    st.write("Classifying...")
-
-    img = image.resize((224, 224))
-    img_array = np.array(img) / 255.0
-    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
-
-    # Ensure the model exists before prediction
-    if model:
-        predictions = model.predict(img_array)
-        predicted_class = np.argmax(predictions[0])
-        st.write(f"Predicted class: {predicted_class}")
