@@ -26,6 +26,28 @@ def predict(image):
     predictions = model.predict(image)
     return predictions
 
+# Function to calculate detected classes and their percentages
+def calculate_classes(predictions, threshold=0.5):
+    classes = ['Capacitor_SMD', 'Diode_SMD', 'IC_Chip', 'Inductor_SMD', 'Resistor_SMD']
+    detected_classes = []
+    for i, cls in enumerate(classes):
+        if predictions[0][i] >= threshold:
+            detected_classes.append(cls)
+    
+    # Count occurrences of each class
+    class_counts = {cls: 0 for cls in classes}
+    for cls in detected_classes:
+        class_counts[cls] += 1
+
+    # Calculate total detected and percentage
+    total_detected = len(detected_classes)
+    class_percentages = {}
+    if total_detected > 0:
+        for cls in classes:
+            class_percentages[cls] = (class_counts[cls] / total_detected) * 100
+
+    return class_counts, class_percentages
+
 # Streamlit UI
 st.title("PCB Multi-Class Detection")
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
@@ -41,10 +63,11 @@ if uploaded_file is not None:
     # Run prediction
     predictions = predict(processed_image)
     
-    # Define class labels
-    classes = ['Capacitor_SMD', 'Diode_SMD', 'IC_Chip', 'Inductor_SMD', 'Resistor_SMD']
-    
-    # Display predictions
-    st.write("Predictions:")
-    for i, cls in enumerate(classes):
-        st.write(f"{cls}: {predictions[0][i]:.2f}")
+    # Calculate detected classes and their percentages
+    class_counts, class_percentages = calculate_classes(predictions)
+
+    # Display detected classes and percentages
+    st.write("Detected Classes and Percentages:")
+    for cls, count in class_counts.items():
+        if count > 0:
+            st.write(f"{cls}: {class_percentages[cls]:.2f}%")
