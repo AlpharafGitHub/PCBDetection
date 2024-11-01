@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 
 # Load the model
-model = load_model('PCB_Multi_Label_Classifier.h5')
+model = load_model('PCB_Multi_Label_Classifier_V2.h5')
 
 # Streamlit interface
 st.title("PCB Multi-Class Detection")
