@@ -4,4 +4,3 @@ numpy
 pandas
 matplotlib
 opencv-python
-tflite-runtime
