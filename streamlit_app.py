@@ -3,14 +3,13 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 
-# Load TFLite model using TensorFlow's interpreter
+# Load the .h5 model
 def load_model():
-    interpreter = tf.lite.Interpreter(model_path="PCB_Multi_Label_Classifier_V2.tflite")
-    interpreter.allocate_tensors()
-    return interpreter
+    model = tf.keras.models.load_model("PCB_Multi_Label_Classifier_V2.h5")
+    return model
 
 # Initialize the model
-interpreter = load_model()
+model = load_model()
 
 # Function to preprocess the image
 def preprocess_image(image):
@@ -22,15 +21,9 @@ def preprocess_image(image):
     image_array = np.array(image) / 255.0
     return np.expand_dims(image_array, axis=0).astype(np.float32)
 
-# Function to run inference on the TFLite model
+# Function to run inference on the model
 def predict(image):
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
-
-    interpreter.set_tensor(input_details[0]['index'], image)
-    interpreter.invoke()
-    predictions = interpreter.get_tensor(output_details[0]['index'])
-    
+    predictions = model.predict(image)
     return predictions
 
 # Streamlit UI
