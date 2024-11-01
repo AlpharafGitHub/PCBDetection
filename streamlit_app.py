@@ -18,9 +18,8 @@ class_mapping = {
 # Load the pre-trained model
 @st.cache(allow_output_mutation=True)
 def load_model():
-    model_url = "https://github.com/AlpharafGitHub/PCBDetection/raw/main/PCB_Multi_Label_Classifier.h5"
+    model_url = "https://github.com/AlpharafGitHub/PCBDetection/edit/main/PCB_Multi_Label_Classifier.h5"
     model_path = tf.keras.utils.get_file("pcb_model.h5", origin=model_url, cache_subdir=os.path.abspath("."))
-    model_path = tf.keras.utils.get_file("PCB_Multi_Label_Classifier.h5", origin=model_url, cache_subdir=os.path.abspath("."))
     model = tf.keras.models.load_model(model_path)
     return model
 
@@ -45,3 +44,11 @@ uploaded_file = st.file_uploader("Upload an image of a PCB for classification.",
 if uploaded_file is not None:
     # Display the uploaded image
     image = Image.open(uploaded_file)
+    st.image(image, caption='Uploaded Image.', use_column_width=True)
+
+    # Load the model
+    model = load_model()
+
+    # Make predictions
+    predicted_class = predict(image, model)
+    st.write(f"The PCB is classified as: {predicted_class}")
